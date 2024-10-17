@@ -18,7 +18,7 @@ function App() {
     >
       <Canvas
         camera={{
-          position: [0, 20, 10],
+          position: [0, 20, 15],
           rotation: [degToRad(-75), 0, 0],
         }}
       >

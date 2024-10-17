@@ -6,20 +6,20 @@ import { useRef } from 'react'
 const playerSpeed = 5
 
 export const Player = () => {
-  const input = useInputStore()
   const playerRef = useRef<Mesh>(null!)
 
   useFrame((state, delta) => {
-    if (input.get().a) {
+    const inputs = useInputStore.getState().inputs
+    if (inputs.a) {
       playerRef.current.position.x -= delta * playerSpeed
     }
-    if (input.get().d) {
+    if (inputs.d) {
       playerRef.current.position.x += delta * playerSpeed
     }
-    if (input.get().w) {
+    if (inputs.w) {
       playerRef.current.position.z -= delta * playerSpeed
     }
-    if (input.get().s) {
+    if (inputs.s) {
       playerRef.current.position.z += delta * playerSpeed
     }
 
