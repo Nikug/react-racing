@@ -1,33 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+/* */
+import { degToRad } from 'three/src/math/MathUtils.js'
 import './App.css'
 import { Game } from './Game'
 import { Canvas } from '@react-three/fiber'
+import { useInputHandler } from './InputHandler'
+
+// TODO:
+// - Add Zustand
+// - Add keyboard handling logic
+//   - Create some kind of store that has methods for onPress and onHold
+//   - https://docs.unity3d.com/ScriptReference/Input.html <-- copy this kind of api
 
 function App() {
-  const [count, setCount] = useState(0)
+  useInputHandler()
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-      </div>
-      <div style={{ width: 400, height: 400 }}>
-        <Canvas>
-          <Game />
-        </Canvas>
-      </div>
-    </>
+    <div style={{ width: 800, height: 800, border: '1px solid black', borderRadius: '0.5rem' }}>
+      <Canvas
+        camera={{
+          position: [0, 20, 10],
+          rotation: [degToRad(-75), 0, 0],
+        }}
+      >
+        <Game />
+      </Canvas>
+    </div>
   )
 }
 
