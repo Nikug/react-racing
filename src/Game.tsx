@@ -1,17 +1,36 @@
-import { Mesh } from 'three'
-import { useRef } from 'react'
 import { Player } from './Player'
+import { useControls } from 'leva'
+import { useBox } from '@react-three/cannon'
+import { Mesh } from 'three'
 
 export const Game = () => {
-  const meshRef = useRef<Mesh>(null!)
+  const [meshRef] = useBox<Mesh>(() => ({ type: 'Static', position: [0, 0, 0], args: [20, 2, 20] }))
+
+  const directionalLightControl = useControls('Directional light', {
+    intensity: {
+      value: 1,
+      min: 0,
+      max: 1,
+      step: 0.1,
+    },
+    position: { x: -50, y: 100, z: 50 },
+  })
 
   return (
     <>
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[0, 10, 0]} />
-      <mesh ref={meshRef} position={[0, 0, 0]}>
+      <ambientLight intensity={0.5} />
+      <directionalLight
+        intensity={directionalLightControl.intensity}
+        position={[
+          directionalLightControl.position.x,
+          directionalLightControl.position.y,
+          directionalLightControl.position.z,
+        ]}
+        castShadow
+      />
+      <mesh ref={meshRef} receiveShadow>
         <boxGeometry args={[20, 2, 20]} />
-        <meshStandardMaterial color={'#5555ff'} />
+        <meshStandardMaterial color="#5555ff" />
       </mesh>
       <Player />
     </>
