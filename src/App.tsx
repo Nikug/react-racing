@@ -4,8 +4,9 @@ import { Game } from './Game'
 import { Canvas } from '@react-three/fiber'
 import { useInputHandler } from './useInputHandler'
 import { useWindowSize } from './useWindowSize'
-import { Debug, Physics } from '@react-three/cannon'
 import { Leva } from 'leva'
+import { Suspense } from 'react'
+import { Physics } from '@react-three/rapier'
 
 export const debug = true
 
@@ -27,15 +28,11 @@ function App() {
           rotation: [degToRad(-75), 0, 0],
         }}
       >
-        <Physics>
-          {debug ? (
-            <Debug color="black">
-              <Game />
-            </Debug>
-          ) : (
+        <Suspense>
+          <Physics debug={debug} interpolate timeStep="vary" updateLoop="independent">
             <Game />
-          )}
-        </Physics>
+          </Physics>
+        </Suspense>
       </Canvas>
       <Leva hidden={!debug} />
     </div>

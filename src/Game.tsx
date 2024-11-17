@@ -1,12 +1,9 @@
 import { Player } from './Player'
 import { useControls } from 'leva'
-import { useBox } from '@react-three/cannon'
-import { Mesh } from 'three'
 import { InputUpdater } from './InputUpdater'
+import { RigidBody } from '@react-three/rapier'
 
 export const Game = () => {
-  const [meshRef] = useBox<Mesh>(() => ({ type: 'Static', position: [0, 0, 0], args: [20, 2, 20] }))
-
   const directionalLightControl = useControls('Directional light', {
     intensity: {
       value: 1,
@@ -29,10 +26,12 @@ export const Game = () => {
         ]}
         castShadow
       />
-      <mesh ref={meshRef} receiveShadow>
-        <boxGeometry args={[20, 2, 20]} />
-        <meshStandardMaterial color="#5555ff" />
-      </mesh>
+      <RigidBody type="fixed" colliders="cuboid">
+        <mesh receiveShadow>
+          <boxGeometry args={[20, 2, 20]} />
+          <meshStandardMaterial color="#5555ff" />
+        </mesh>
+      </RigidBody>
       <Player />
       <InputUpdater />
     </>

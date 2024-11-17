@@ -1,33 +1,20 @@
 import { useFrame } from '@react-three/fiber'
 import { useInputStore } from './InputStore'
-import { useBox } from '@react-three/cannon'
-import { Mesh, Vector3 } from 'three'
-import { useEffect } from 'react'
-import { usePlayerStore } from './PlayerStore'
-import { tripletToVector } from './util'
+import { Vector3 } from 'three'
+import { RapierRigidBody, RigidBody, vec3 } from '@react-three/rapier'
+import { useRef } from 'react'
 
-const playerSpeed = 10
-const playerJump = 10
+const playerSpeed = 5
+const playerSpeedMultiplier = 100
+const playerJump = 50
 
 export const Player = () => {
-  const [playerRef, api] = useBox<Mesh>(() => ({
-    mass: 1,
-    position: [0, 6, 0],
-    args: [2, 2, 2],
-    fixedRotation: true,
-  }))
-
-  useEffect(() => {
-    return api.position.subscribe((position) => usePlayerStore.getState().setPosition(position))
-  }, [api])
-
-  useEffect(() => {
-    return api.velocity.subscribe((position) => usePlayerStore.getState().setVelocity(position))
-  }, [api])
+  const playerRef = useRef<RapierRigidBody>(null!)
 
   useFrame((state) => {
+    if (!playerRef.current) return
+
     const inputs = useInputStore.getState()
-    const player = usePlayerStore.getState()
     const direction = [0, 0, 0]
     if (inputs.isHeld('a')) {
       direction[0] -= 1
@@ -42,24 +29,39 @@ export const Player = () => {
       direction[2] += 1
     }
 
-    const velocity = new Vector3(...direction).normalize().multiplyScalar(playerSpeed)
+    const force = new Vector3(...direction)
+      .normalize()
+      .multiplyScalar(playerSpeed * playerSpeedMultiplier)
 
-    // api.applyLocalForce(force.toArray(), [0, 0, 0])
-    const velocityArray = velocity.toArray()
-    velocityArray[1] = player.velocity[1]
-    api.velocity.set(...velocityArray)
-
-    if (inputs.isTriggered(' ')) {
-      api.applyLocalImpulse([0, playerJump, 0], [0, 0, 0])
+    if (force.x === 0 && force.z === 0) {
+      playerRef.current.resetForces(true)
+    } else {
+      playerRef.current.resetForces(true)
+      playerRef.current.addForce(force, true)
     }
 
-    state.camera.lookAt(tripletToVector(player.position))
+    if (inputs.isTriggered(' ')) {
+      playerRef.current.applyImpulse(new Vector3(0, playerJump, 0), true)
+    }
+
+    const position = playerRef.current.translation()
+    state.camera.lookAt(vec3(position))
   })
 
   return (
-    <mesh ref={playerRef} castShadow>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color={'#ff55ff'} />
-    </mesh>
+    <RigidBody
+      ref={playerRef}
+      colliders="cuboid"
+      position={[0, 4, 0]}
+      type="dynamic"
+      mass={1}
+      friction={0}
+      lockRotations
+    >
+      <mesh castShadow>
+        <boxGeometry args={[2, 2, 2]} />
+        <meshStandardMaterial color={'#ff55ff'} />
+      </mesh>
+    </RigidBody>
   )
 }
