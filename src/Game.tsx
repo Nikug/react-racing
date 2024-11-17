@@ -2,6 +2,7 @@ import { Player } from './Player'
 import { useControls } from 'leva'
 import { useBox } from '@react-three/cannon'
 import { Mesh } from 'three'
+import { InputUpdater } from './InputUpdater'
 
 export const Game = () => {
   const [meshRef] = useBox<Mesh>(() => ({ type: 'Static', position: [0, 0, 0], args: [20, 2, 20] }))
@@ -33,6 +34,7 @@ export const Game = () => {
         <meshStandardMaterial color="#5555ff" />
       </mesh>
       <Player />
+      <InputUpdater />
     </>
   )
 }

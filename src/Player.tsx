@@ -1,19 +1,20 @@
 import { useFrame } from '@react-three/fiber'
 import { useInputStore } from './InputStore'
 import { useBox } from '@react-three/cannon'
-import { Mesh } from 'three'
+import { Mesh, Vector3 } from 'three'
 import { useEffect } from 'react'
 import { usePlayerStore } from './PlayerStore'
 import { tripletToVector } from './util'
 
-const playerSpeed = 500
+const playerSpeed = 10
+const playerJump = 10
 
 export const Player = () => {
   const [playerRef, api] = useBox<Mesh>(() => ({
     mass: 1,
     position: [0, 6, 0],
     args: [2, 2, 2],
-    angularFactor: [0, 1, 0],
+    fixedRotation: true,
   }))
 
   useEffect(() => {
@@ -24,20 +25,32 @@ export const Player = () => {
     return api.velocity.subscribe((position) => usePlayerStore.getState().setVelocity(position))
   }, [api])
 
-  useFrame((state, delta) => {
-    const inputs = useInputStore.getState().inputs
+  useFrame((state) => {
+    const inputs = useInputStore.getState()
     const player = usePlayerStore.getState()
-    if (inputs.a) {
-      api.velocity.set(delta * -playerSpeed, player.velocity[1], player.velocity[2])
+    const direction = [0, 0, 0]
+    if (inputs.isHeld('a')) {
+      direction[0] -= 1
     }
-    if (inputs.d) {
-      api.velocity.set(delta * playerSpeed, player.velocity[1], player.velocity[2])
+    if (inputs.isHeld('d')) {
+      direction[0] += 1
     }
-    if (inputs.w) {
-      api.velocity.set(player.velocity[0], player.velocity[1], delta * -playerSpeed)
+    if (inputs.isHeld('w')) {
+      direction[2] -= 1
     }
-    if (inputs.s) {
-      api.velocity.set(player.velocity[0], player.velocity[1], delta * playerSpeed)
+    if (inputs.isHeld('s')) {
+      direction[2] += 1
+    }
+
+    const velocity = new Vector3(...direction).normalize().multiplyScalar(playerSpeed)
+
+    // api.applyLocalForce(force.toArray(), [0, 0, 0])
+    const velocityArray = velocity.toArray()
+    velocityArray[1] = player.velocity[1]
+    api.velocity.set(...velocityArray)
+
+    if (inputs.isTriggered(' ')) {
+      api.applyLocalImpulse([0, playerJump, 0], [0, 0, 0])
     }
 
     state.camera.lookAt(tripletToVector(player.position))

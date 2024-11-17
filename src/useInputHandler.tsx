@@ -26,5 +26,5 @@ export const useInputHandler = () => {
       window.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('keydown', handleKeyDown)
     }
-  })
+  }, [handleKeyUp, handleKeyDown])
 }
