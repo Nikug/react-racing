@@ -16,32 +16,34 @@ function App() {
   const physicsControl = useControls('Physics', { debug: true })
 
   return (
-    <div
-      style={{
-        width: size[0],
-        height: size[1],
-      }}
-    >
-      <Canvas
-        shadows
-        camera={{
-          position: [0, 20, 15],
-          rotation: [degToRad(-75), 0, 0],
+    <>
+      <div
+        style={{
+          width: size[0],
+          height: size[1],
         }}
       >
-        <Suspense>
-          <Physics
-            debug={physicsControl.debug}
-            interpolate
-            timeStep="vary"
-            updateLoop="independent"
-          >
-            <Game />
-          </Physics>
-        </Suspense>
-      </Canvas>
+        <Canvas
+          shadows
+          camera={{
+            position: [0, 20, 15],
+            rotation: [degToRad(-75), 0, 0],
+          }}
+        >
+          <Suspense>
+            <Physics
+              debug={physicsControl.debug}
+              interpolate
+              timeStep="vary"
+              updateLoop="independent"
+            >
+              <Game />
+            </Physics>
+          </Suspense>
+        </Canvas>
+      </div>
       <Leva hidden={!debug} />
-    </div>
+    </>
   )
 }
 
