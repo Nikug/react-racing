@@ -3,8 +3,9 @@ import { useInputStore } from './InputStore'
 import { Vector3 } from 'three'
 import { RapierRigidBody, RigidBody, vec3 } from '@react-three/rapier'
 import { useRef } from 'react'
+import { usePlayerStore } from './PlayerStore'
 
-const playerSpeed = 5
+const playerSpeed = 2
 const playerSpeedMultiplier = 100
 const playerJump = 50
 
@@ -15,6 +16,7 @@ export const Player = () => {
     if (!playerRef.current) return
 
     const inputs = useInputStore.getState()
+    const player = usePlayerStore.getState()
     const direction = [0, 0, 0]
     if (inputs.isHeld('a')) {
       direction[0] -= 1
@@ -40,8 +42,9 @@ export const Player = () => {
       playerRef.current.addForce(force, true)
     }
 
-    if (inputs.isTriggered(' ')) {
+    if (inputs.isTriggered(' ') && player.grounded) {
       playerRef.current.applyImpulse(new Vector3(0, playerJump, 0), true)
+      usePlayerStore.setState({ grounded: false })
     }
 
     const position = playerRef.current.translation()
@@ -57,6 +60,13 @@ export const Player = () => {
       mass={1}
       friction={0}
       lockRotations
+      onCollisionEnter={(collision) => {
+        const other = collision.other.collider.translation()
+        const self = collision.target.collider.translation()
+        if (other.y - self.y < 0) {
+          usePlayerStore.setState({ grounded: true })
+        }
+      }}
     >
       <mesh castShadow>
         <boxGeometry args={[2, 2, 2]} />
